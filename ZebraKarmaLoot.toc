@@ -1,0 +1,13 @@
+## Interface: 30300
+## Title: ZebraKarmaLoot
+## Author: dys
+## Version: 0.0.1
+## eMail: dys.wowace@gmail.com
+## DefaultState: Enabled
+## Dependencies: Ni_Karma
+## LoadOnDemand: 0
+
+embeds.xml
+#Locale-enGB.lua
+ZebraKarmaLoot.lua
+ZebraKarmaLoot.xml

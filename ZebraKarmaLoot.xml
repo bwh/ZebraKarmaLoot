@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-insance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+  <Button name="ZKLItemButtonTemplate" virtual="true">
+    <Size x="298" y="20" />
+
+    <Layers>
+      <Layer level="BORDER">
+        <FontString name="$parentLink" inherits="GameFontNormal" justifyH="LEFT">
+          <Size x="288" y="20" />
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset x="10" y="0" />
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+
+    <Scripts>
+      <OnLoad>
+        self:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+      </OnLoad>
+
+      <OnClick>
+        DEFAULT_CHAT_FRAME:AddMessage("Clickedy!");
+      </OnClick>
+    </Scripts>
+
+    <HighlightTexture file="Interface\QuestFrame\UI-QuestTitleHighlight" alphaMode="ADD">
+      <Size>
+        <AbsDimension x="298" y="20"/>
+      </Size>
+      <Anchors>
+        <Anchor point="TOP">
+          <Offset>
+            <AbsDimension x="5" y="-2"/>
+          </Offset>
+        </Anchor>
+      </Anchors>
+    </HighlightTexture>
+
+  </Button>
+
+  <Frame name="ZKLFrame" frameStrata="LOW" toplevel="true" enableMouse="true" parent="KarmaRollFrame">
+    <!-- TODO: The right-side texture has 40 pixels of empty space. Since it is
+         the same as Ni_Karma, I am leaving it as is for now. But it needs
+         fixing. -->
+    <Size x="424" y="175" />
+
+    <Anchors>
+      <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
+        <Offset x="0" y="12"/>
+      </Anchor>
+    </Anchors>
+
+    <Layers>
+      <Layer level="BACKGROUND">
+        <Texture file="Interface\HelpFrame\HelpFrame-BotLeftBig">
+          <Size x="296" y="100"/>
+          <Anchors>
+            <Anchor point="TOPLEFT"/>
+          </Anchors>
+          <TexCoords left="0" right="1" top="0.95" bottom="0.21"/>
+        </Texture>
+        <Texture file="Interface\HelpFrame\HelpFrame-BotRightBig">
+          <Size x="128" y="100"/>
+          <Anchors>
+            <Anchor point="TOPRIGHT"/>
+          </Anchors>
+          <TexCoords left="0" right="1" top="0.95" bottom="0.21"/>
+        </Texture>
+        <Texture file="Interface\HelpFrame\HelpFrame-BotLeft">
+          <Size x="296" y="75"/>
+          <Anchors>
+            <Anchor point="BOTTOMLEFT"/>
+          </Anchors>
+        </Texture>
+        <Texture file="Interface\HelpFrame\HelpFrame-BotRight">
+          <Size x="128" y="75"/>
+          <Anchors>
+            <Anchor point="BOTTOMRIGHT"/>
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+
+    <Frames>
+      <Button name="$parentSendListButton" inherits="UIPanelButtonTemplate" text="Send Loot List">
+        <Size x="120" y="20" />
+        <Anchors>
+          <Anchor point="TOPLEFT">
+            <Offset x="20" y="-5" />
+          </Anchor>
+        </Anchors>
+      </Button>
+
+      <Button name="$parentClearListButton" inherits="UIPanelButtonTemplate" text="Clear Loot List">
+        <Size x="120" y="20" />
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parentSendListButton" relativePoint="RIGHT">
+            <Offset x="10" y="0" />
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnClick>
+            ZebraKarmaLoot:ItemList_Clear()
+          </OnClick> 
+        </Scripts>
+      </Button>
+
+      <ScrollFrame name="$parentItemScrollFrame" inherits="FauxScrollFrameTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentSendListButton" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-6" />
+          </Anchor>
+          <Anchor point="BOTTOMRIGHT">
+            <!-- FIXME: Should be 30, but 70 because of texture issue -->
+            <Offset x="-78" y="16" />
+          </Anchor>
+        </Anchors>
+
+        <Scripts>
+          <OnVerticalScroll>
+            FauxScrollFrame_OnVerticalScroll(self, offset, 20, ZebraKarmaLoot.ItemScrollFrame_Update)
+          </OnVerticalScroll> 
+          <OnShow>
+            ZebraKarmaLoot.ItemScrollFrame_Update(self)
+          </OnShow>
+        </Scripts>
+      </ScrollFrame>
+
+      <!-- The item display button. The others will be created dynamically -->
+      <Button name="$parentItemButton1" inherits="ZKLItemButtonTemplate" id="1">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentItemScrollFrame">
+            <Offset x="0" y="0" />
+          </Anchor>
+        </Anchors>
+      </Button>
+
+    </Frames>
+
+    <Scripts>
+      <OnLoad>
+        self:SetParent(KarmaRollFrame)
+      </OnLoad>
+    </Scripts>
+  </Frame>
+</Ui>
