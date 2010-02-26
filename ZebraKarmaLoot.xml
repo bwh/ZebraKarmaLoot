@@ -87,7 +87,7 @@
     </Layers>
 
     <Frames>
-      <Button name="$parentSendListButton" inherits="UIPanelButtonTemplate" text="Send Loot List">
+      <Button name="$parentSendListButton" inherits="UIPanelButtonTemplate">
         <Size x="120" y="20" />
         <Anchors>
           <Anchor point="TOPLEFT">
@@ -96,7 +96,7 @@
         </Anchors>
       </Button>
 
-      <Button name="$parentClearListButton" inherits="UIPanelButtonTemplate" text="Clear Loot List">
+      <Button name="$parentClearListButton" inherits="UIPanelButtonTemplate">
         <Size x="120" y="20" />
         <Anchors>
           <Anchor point="LEFT" relativeTo="$parentSendListButton" relativePoint="RIGHT">
@@ -145,6 +145,7 @@
     <Scripts>
       <OnLoad>
         self:SetParent(KarmaRollFrame)
+        ZebraKarmaLoot:LocalizeUi()
       </OnLoad>
     </Scripts>
   </Frame>

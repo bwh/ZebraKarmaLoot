@@ -5,6 +5,8 @@ local addon = ZebraKarmaLoot
 addon.ADDONNAME = NAME
 addon.VERSION = "0.0.1"
 
+local L = LibStub("AceLocale-3.0"):GetLocale("ZebraKarmaLoot")
+
 -- Number of items we can display in scroll frame
 addon.const = {}
 addon.const.ItemListCount = 1
@@ -30,6 +32,14 @@ function addon:OnDisable()
     --    self:Unhook("SetItemRef")
     self:Unhook("HandleModifiedItemClick")
     --addon:UnregisterEvent()
+end
+
+--------------------------------------------------------------------------------
+-- Fixup locale in UI
+--------------------------------------------------------------------------------
+function addon:LocalizeUi()
+    ZKLFrameSendListButton:SetText(L["Send Loot List"])
+    ZKLFrameClearListButton:SetText(L["Clear Loot List"])
 end
 
 --------------------------------------------------------------------------------
