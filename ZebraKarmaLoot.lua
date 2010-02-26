@@ -1,6 +1,6 @@
 local NAME="ZebraKarmaLoot"
 
-ZebraKarmaLoot = LibStub("AceAddon-3.0"):NewAddon(NAME, "AceConsole-3.0", "AceEvent-3.0")
+ZebraKarmaLoot = LibStub("AceAddon-3.0"):NewAddon(NAME, "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0")
 local addon = ZebraKarmaLoot
 addon.ADDONNAME = NAME
 addon.VERSION = "0.0.1"
@@ -14,18 +14,38 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addon.ADDONNAME, true)
 
 
 function addon:OnInitialize()
+    self:SetDebugging(false)
     self.itemList = self:GetTable()
     self.itemList.numItems = 0
 end
 
 function addon:OnEnable()
     --addon:RegisterEvent()
+    self:SecureHook("HandleModifiedItemClick", "ModifiedClickHandler")
+--    self:SecureHook("SetItemRef", "SetItemRefHandler")
     ZKLFrameItemScrollFrame:Show()
 end
 
 function addon:OnDisable()
+    --    self:Unhook("SetItemRef")
+    self:Unhook("HandleModifiedItemClick")
     --addon:UnregisterEvent()
 end
+
+--------------------------------------------------------------------------------
+-- Hooked functions for list manipulation
+--------------------------------------------------------------------------------
+function addon:ModifiedClickHandler(link)
+    self:Debug("Modified click:", link, self:GetIdFromLink(link))
+    self:ItemList_Add(self:GetIdFromLink(link))
+end
+
+--[[ Is this really necessary?
+function addon:SetItemRefHandler(link, text, button)
+    self:Debug("Modified click:", link, self:GetIdFromLink(link))
+    self:ItemList_Add(self:GetIdFromLink(link))
+end
+]]--
 
 --------------------------------------------------------------------------------
 -- Item list handling
@@ -34,13 +54,17 @@ function addon:ItemList_Clear()
     self:FreeTable(self.itemList)
     self.itemList = self:GetTable()
     self.itemList.numItems = 0
+    self:UpdateItemList(ZKLFrameItemScrollFrame)
 end
 
 function addon:ItemList_Add(itemId)
+    -- Allow adding the same item to the list twice. It may happen.
     local name, link, rarity, _, _, type, subType = GetItemInfo(itemId)
     if name then
         local info = self:GetTable()
         info.link = link
+        info.id = itemId
+
         -- Ignore the other info for now
         local idx = self.itemList.numItems + 1
         self.itemList[idx] = info
@@ -71,14 +95,10 @@ end
 
 -- this is a "static" method. note the "."
 function addon.ItemScrollFrame_Update(frame)
-    addon:Print("In here: " .. frame:GetName())
     addon:UpdateItemList(frame)
 end
 
 function addon:UpdateItemList(frame)
-    frame = ZKLFrameItemScrollFrame
-
-    self:Print(frame:GetName())
     local buttonCount = math.floor(
         frame:GetHeight() / self.const.ItemButtonHeight)
 
@@ -115,28 +135,56 @@ end
 --------------------------------------------------------------------------------
 -- Array handling for low garbage generation
 --------------------------------------------------------------------------------
-addon.tableStore = {}
+tableStore = {}
 
 function addon:GetTable()
-    local last = #addon.tableStore
+    local last = #tableStore
     local tbl
     if last == 0 then
         tbl = {}
     else
-        tbl = addon.tableStore[last]
-        addon.tableStore[last] = nil
+        tbl = tableStore[last]
+        tableStore[last] = nil
     end
 
     return tbl
 end
 
-function addon:FreeArray(tbl)
+function addon:FreeTable(tbl)
     for i, v in pairs(tbl) do
-        print(i, v)
+        -- erase first, we don't want to do infinite loops over self referencing
+        -- tables
+        tbl[i] = nil
         if type(v) == "table" then
             self:FreeArray(v)
         end
-        tbl[i] = nil
     end
-    table.insert(addon.tableStore, tbl)
+
+    -- TODO: check for already added entries.
+    if #tableStore < 50 then
+        table.insert(tableStore, tbl)
+    end
+end
+
+--------------------------------------------------------------------------------
+-- Helper functions
+--------------------------------------------------------------------------------
+
+function addon:GetIdFromLink(link)
+    local _, _, id = string.find(link,"item:(%d+):")
+    return tonumber(id)
+end
+
+-- Local variable to control debugging
+local debugEnabled = false
+
+-- Enable/Disable debugging
+-- TODO: Debug levels?
+function addon:SetDebugging(enabled)
+	debugEnabled = enabled
+end
+
+-- Print a debug statement
+function addon:Debug(...)
+	return debugEnabled and self:Print(date(), ": ", ...)
 end
