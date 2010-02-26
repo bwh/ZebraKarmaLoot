@@ -55,6 +55,11 @@ function addon:ItemList_Clear()
     self.itemList = self:GetTable()
     self.itemList.numItems = 0
     self:UpdateItemList(ZKLFrameItemScrollFrame)
+
+    -- Stupid check. If Ni_Karma is not there what are we doing running?
+    if KarmaRollFrameClearButton then
+        KarmaRollFrameClearButton:Click()
+    end
 end
 
 function addon:ItemList_Add(itemId)
@@ -156,7 +161,7 @@ function addon:FreeTable(tbl)
         -- tables
         tbl[i] = nil
         if type(v) == "table" then
-            self:FreeArray(v)
+            self:FreeTable(v)
         end
     end
 
