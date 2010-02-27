@@ -61,12 +61,14 @@ function addon:ItemList_Clear()
 end
 
 function addon:ItemList_Add(itemId, lootIndex)
+    local existingItem = self:ItemList_Find(itemId)
+
     -- Do not allow adding the same item if the loot window ID is different
     -- This is most likely the same window being opened again
     -- FIXME: is lootWindowId necessary now?
-    if self.itemList[itemId] and
-       self.itemList[itemId].lootIndex == lootIndex and
-       self.itemList[itemId].lootWindowId ~= self.lootWindowId
+    if existingItem and
+       existingItem.lootIndex == lootIndex and
+       existingItem.lootWindowId ~= self.lootWindowId
     then
         return
     end
@@ -96,9 +98,9 @@ function addon:ItemList_Find(itemIdOrIdx)
         return self.itemList[itemIdOrIdx]
     end
 
-    for i, v in ipairs(self.itemList.numItems) do
-        if v.id == itemIdorIdx then
-            return i
+    for i, v in ipairs(self.itemList) do
+        if v.id == itemIdOrIdx then
+            return v
         end
     end
 end
