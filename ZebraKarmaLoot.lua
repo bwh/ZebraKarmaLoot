@@ -22,7 +22,7 @@ function addon:OnInitialize()
 end
 
 function addon:OnEnable()
-    --addon:RegisterEvent()
+    addon:RegisterEvent("LOOT_OPENED", "OnLootOpened")
     self:SecureHook("HandleModifiedItemClick", "ModifiedClickHandler")
 --    self:SecureHook("SetItemRef", "SetItemRefHandler")
     ZKLFrameItemScrollFrame:Show()
@@ -31,7 +31,7 @@ end
 function addon:OnDisable()
     --    self:Unhook("SetItemRef")
     self:Unhook("HandleModifiedItemClick")
-    --addon:UnregisterEvent()
+    addon:UnregisterEvent("LOOT_OPENED")
 end
 
 --------------------------------------------------------------------------------
@@ -163,6 +163,25 @@ function addon:SendItemToNiKarma(frame)
         addon.itemList[itemIdx].link
     then
         KarmaLootItem_OnClick(addon.itemList[itemIdx].link)
+    end
+end
+
+--------------------------------------------------------------------------------
+-- Event handlers
+--------------------------------------------------------------------------------
+
+-- Handle auto-populating the loot list when loot frame is opened
+function addon:OnLootOpened()
+    local numItems = GetNumLootItems()
+    if numItems < 1 then return end
+
+    for i=1,numItems do
+        link = GetLootSlotLink(i)
+        if link then
+            local itemId = self:GetIdFromLink(link)
+            -- TODO: need fix for when the same window is opened twice
+            self:ItemList_Add(itemId)
+        end
     end
 end
 
