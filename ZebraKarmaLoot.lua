@@ -20,19 +20,19 @@ function addon:OnInitialize()
     self.itemList = self:GetTable()
     self.itemList.numItems = 0
     self.lootWindowId = 1
+    self.isLootWindowOpen = false
 end
 
 function addon:OnEnable()
     addon:RegisterEvent("LOOT_OPENED", "OnLootOpened")
     addon:RegisterEvent("LOOT_CLOSED", "OnLootClosed")
-    self:SecureHook("HandleModifiedItemClick", "ModifiedClickHandler")
---    self:SecureHook("SetItemRef", "SetItemRefHandler")
+    addon:AddHooks()
+
     ZKLFrameItemScrollFrame:Show()
 end
 
 function addon:OnDisable()
-    --    self:Unhook("SetItemRef")
-    self:Unhook("HandleModifiedItemClick")
+    addon:RemoveHooks()
     addon:UnregisterEvent("LOOT_CLOSED")
     addon:UnregisterEvent("LOOT_OPENED")
 end
@@ -44,21 +44,6 @@ function addon:LocalizeUi()
     ZKLFrameSendListButton:SetText(L["Send Loot List"])
     ZKLFrameClearListButton:SetText(L["Clear Loot List"])
 end
-
---------------------------------------------------------------------------------
--- Hooked functions for list manipulation
---------------------------------------------------------------------------------
-function addon:ModifiedClickHandler(link)
-    self:Debug("Modified click:", link, self:GetIdFromLink(link))
-    self:ItemList_Add(self:GetIdFromLink(link))
-end
-
---[[ Is this really necessary?
-function addon:SetItemRefHandler(link, text, button)
-    self:Debug("Modified click:", link, self:GetIdFromLink(link))
-    self:ItemList_Add(self:GetIdFromLink(link))
-end
-]]--
 
 --------------------------------------------------------------------------------
 -- Item list handling
@@ -75,10 +60,12 @@ function addon:ItemList_Clear()
     end
 end
 
-function addon:ItemList_Add(itemId)
+function addon:ItemList_Add(itemId, lootIndex)
     -- Do not allow adding the same item if the loot window ID is different
     -- This is most likely the same window being opened again
+    -- FIXME: is lootWindowId necessary now?
     if self.itemList[itemId] and
+       self.itemList[itemId].lootIndex == lootIndex and
        self.itemList[itemId].lootWindowId ~= self.lootWindowId
     then
         return
@@ -91,15 +78,73 @@ function addon:ItemList_Add(itemId)
         info.link = link
         info.id = itemId
         info.lootWindowId = self.lootWindowId
+        info.lootIndex = lootIndex -- This is either the index in loot window, or nil
 
         -- Ignore the other info for now
         local idx = self.itemList.numItems + 1
+        info.index = idx
+
         self.itemList[idx] = info
         self.itemList.numItems = idx
 
         self.itemList[itemId] = info
 
         self:UpdateItemList(ZKLFrameItemScrollFrame)
+    end
+end
+
+function addon:ItemList_Find(itemId)
+    return self.itemList and self.itemList[itemId]
+end
+
+function addon:ItemList_Remove(itemId)
+    local itemIdx = -1
+
+    if self.itemList[itemId] then
+        itemIdx = self.itemList[itemId].index
+        -- Do *not* call FreeTable for this. It is an alias to the index
+        self.itemList[itemId] = nil
+    end
+
+    if itemIdx ~= -1 then
+        self:FreeTable(self.itemList[itemIdx])
+        self.itemList[itemIdx] = nil
+        self:UpdateItemList(ZKLFrameItemScrollFrame)
+    end
+end
+
+function addon:AwardLoot(link, player)
+    -- Silly check
+    if not link then return end
+
+    local itemId = self:GetIdFromLink(link)
+
+    if not itemId then return end
+
+    -- Find the item in the itemList
+    local item = self:ItemList_Find(itemId)
+    if not item then return end
+
+    -- If I am the master looter, give it to the winner
+    local method, partyId = GetLootMethod()
+    if method == "master" and partyId == 0 then
+        if self.lootWindowOpen then
+            local playerIdx = -1
+
+            for i=1, 40 do
+                if GetMasterLootCandidate(i) == player then
+                    playerIdx = i
+                    break
+                end
+            end
+
+            if item.lootIndex and playerIdx ~= -1 then
+                GiveMasterLoot(item.lootIndex, playeridx)
+                self:ItemList_Remove(itemId)
+            end
+        else
+            -- TODO: Queue it and automatically award when window opens.
+        end
     end
 end
 
@@ -186,6 +231,8 @@ end
 
 -- Handle auto-populating the loot list when loot frame is opened
 function addon:OnLootOpened()
+    self.isLootWindowOpen = true
+
     local numItems = GetNumLootItems()
     if numItems < 1 then return end
 
@@ -195,7 +242,7 @@ function addon:OnLootOpened()
             local itemId = self:GetIdFromLink(link)
 
             -- The add function handles the same window being opened twice
-            self:ItemList_Add(itemId)
+            self:ItemList_Add(itemId, i)
         end
     end
 end
@@ -203,6 +250,7 @@ end
 -- Use a counter to assist in maintaining a single list of items
 -- when loot window is re-opened
 function addon:OnLootClosed()
+    self.isLootWindowOpen = false
     self.lootWindowId = self.lootWindowId + 1
 end
 
@@ -241,4 +289,10 @@ end
 -- Print a debug statement
 function addon:Debug(...)
 	return debugEnabled and self:Print(date(), ": ", ...)
+end
+
+function addon:ItemList_Broadcast()
+    for i = 1, self.itemList.numItems do
+        print (addon:GetIdFromLink(self.itemList[i].link))
+    end
 end
