@@ -24,7 +24,7 @@
       </OnLoad>
 
       <OnClick>
-        DEFAULT_CHAT_FRAME:AddMessage("Clickedy!");
+        ZebraKarmaLoot:SendItemToNiKarma(self)
       </OnClick>
     </Scripts>
 

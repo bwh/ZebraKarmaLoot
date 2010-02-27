@@ -138,6 +138,8 @@ function addon:UpdateItemList(frame)
             -- Todo: Make itemlist management functions
             link:SetText(self.itemList[itemIdx].link)
 
+            itemButton.itemIdx = itemIdx
+
             -- Todo: Highlight selected?
             itemButton:Show()
         else
@@ -145,6 +147,23 @@ function addon:UpdateItemList(frame)
         end
     end
 
+end
+
+function addon:SendItemToNiKarma(frame)
+    local itemIdx = frame.itemIdx
+    if not itemIdx then return end
+
+    -- Stupid check. If Ni_Karma is not there what are we doing running?
+    if KarmaRollFrameClearButton then
+        KarmaRollFrameClearButton:Click()
+    end
+
+    if addon.itemList and
+        addon.itemList[itemIdx] and
+        addon.itemList[itemIdx].link
+    then
+        KarmaLootItem_OnClick(addon.itemList[itemIdx].link)
+    end
 end
 
 --------------------------------------------------------------------------------
