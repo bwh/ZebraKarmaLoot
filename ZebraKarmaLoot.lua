@@ -81,36 +81,43 @@ function addon:ItemList_Add(itemId, lootIndex)
         info.lootIndex = lootIndex -- This is either the index in loot window, or nil
 
         -- Ignore the other info for now
-        local idx = self.itemList.numItems + 1
-        info.index = idx
 
-        self.itemList[idx] = info
-        self.itemList.numItems = idx
-
-        self.itemList[itemId] = info
+        -- Insert it into table
+        table.insert(self.itemList, info)
+        info.itemIdx = #self.itemList
+        self.itemList.numItems = #self.itemList
 
         self:UpdateItemList(ZKLFrameItemScrollFrame)
     end
 end
 
-function addon:ItemList_Find(itemId)
-    return self.itemList and self.itemList[itemId]
-end
-
-function addon:ItemList_Remove(itemId)
-    local itemIdx = -1
-
-    if self.itemList[itemId] then
-        itemIdx = self.itemList[itemId].index
-        -- Do *not* call FreeTable for this. It is an alias to the index
-        self.itemList[itemId] = nil
+function addon:ItemList_Find(itemIdOrIdx)
+    if self.itemList[itemIdOrIdx] then
+        return self.itemList[itemIdOrIdx]
     end
 
-    if itemIdx ~= -1 then
+    for i, v in ipairs(self.itemList.numItems) do
+        if v.id == itemIdorIdx then
+            return i
+        end
+    end
+end
+
+function addon:ItemList_Remove(itemIdOrIdx)
+    local itemIdx = itemIdOrIdx
+    if not self.itemList[itemIdx] then
+        itemIdx = self:ItemList_Find(itemIdx)
+    end
+
+    if itemIdx then
         self:FreeTable(self.itemList[itemIdx])
-        self.itemList[itemIdx] = nil
+        table.remove(self.itemList, itemIdx)
+
+        self.itemList.numItems = #self.itemList
+
         self:UpdateItemList(ZKLFrameItemScrollFrame)
     end
+
 end
 
 function addon:AwardLoot(link, player)
@@ -194,14 +201,25 @@ function addon:UpdateItemList(frame)
                 self:Print("ALERT! Big doodoo! Item button has no text field!")
                 return
             end
-            -- Todo: Make itemlist management functions
-            link:SetText(self.itemList[itemIdx].link)
+
+            local item = self:ItemList_Find(itemIdx)
+
+            link:SetText(item.link)
+            local SelfLootBtn = getglobal(itemButton:GetName().."SelfLoot")
+
+            if item.lootIndex then
+                SelfLootBtn:Show()
+            else
+                SelfLootBtn:Hide()
+            end
 
             itemButton.itemIdx = itemIdx
+
 
             -- Todo: Highlight selected?
             itemButton:Show()
         else
+            itemButton.itemIdx = itemIdx
             itemButton:Hide()
         end
     end
@@ -223,6 +241,13 @@ function addon:SendItemToNiKarma(frame)
     then
         KarmaLootItem_OnClick(addon.itemList[itemIdx].link)
     end
+end
+
+function addon:RemoveItem(frame)
+    local itemIdx = frame.itemIdx
+    if not itemIdx then return end
+
+    self:ItemList_Remove(itemIdx)
 end
 
 --------------------------------------------------------------------------------

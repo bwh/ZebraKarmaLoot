@@ -3,12 +3,12 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-insance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 
   <Button name="ZKLItemButtonTemplate" virtual="true">
-    <Size x="298" y="20" />
+    <Size x="290" y="20" />
 
     <Layers>
       <Layer level="BORDER">
         <FontString name="$parentLink" inherits="GameFontNormal" justifyH="LEFT">
-          <Size x="288" y="20" />
+          <Size x="280" y="20" />
           <Anchors>
             <Anchor point="TOPLEFT">
               <Offset x="10" y="0" />
@@ -17,6 +17,32 @@
         </FontString>
       </Layer>
     </Layers>
+
+    <Frames>
+      <Button name="$parentSelfLoot" inherits="UIPanelButtonTemplate" text="S">
+        <Size x="18" y="18" />
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parentLink" relativePoint="RIGHT">
+            <Offset x="2" y="0" />
+          </Anchor>
+        </Anchors>
+      </Button>
+
+      <Button name="$parentRemove" inherits="UIPanelButtonTemplate" text="X">
+        <Size x="18" y="18" />
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parentSelfLoot" relativePoint="RIGHT">
+            <Offset x="2" y="0" />
+          </Anchor>
+        </Anchors>
+
+        <Scripts>
+          <OnClick>
+            ZebraKarmaLoot:RemoveItem(self:GetParent())
+          </OnClick>
+        </Scripts>
+      </Button>
+    </Frames>
 
     <Scripts>
       <OnLoad>
@@ -40,6 +66,7 @@
         </Anchor>
       </Anchors>
     </HighlightTexture>
+
 
   </Button>
 
