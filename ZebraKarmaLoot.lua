@@ -252,6 +252,21 @@ function addon:RemoveItem(frame)
     self:ItemList_Remove(itemIdx)
 end
 
+function addon:ShowTooltip(frame)
+    local itemIdx = frame.itemIdx
+    if not itemIdx then return end
+
+    local item = self:ItemList_Find(itemIdx)
+    if not item then return end
+
+    GameTooltip:SetOwner(frame, "ANCHOR_PRESERVE")
+    GameTooltip:SetHyperlink(item.link)
+    GameTooltip:Show()
+end
+
+function addon:HideTooltip(frame)
+    GameTooltip:Hide()
+end
 --------------------------------------------------------------------------------
 -- Event handlers
 --------------------------------------------------------------------------------

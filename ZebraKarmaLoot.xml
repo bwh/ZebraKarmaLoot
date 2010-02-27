@@ -52,6 +52,14 @@
       <OnClick>
         ZebraKarmaLoot:SendItemToNiKarma(self)
       </OnClick>
+
+      <OnEnter>
+        ZebraKarmaLoot:ShowTooltip(self)
+      </OnEnter>
+
+      <OnLeave>
+        ZebraKarmaLoot:HideTooltip(self)
+      </OnLeave>
     </Scripts>
 
     <HighlightTexture file="Interface\QuestFrame\UI-QuestTitleHighlight" alphaMode="ADD">
