@@ -19,10 +19,12 @@ function addon:OnInitialize()
     self:SetDebugging(false)
     self.itemList = self:GetTable()
     self.itemList.numItems = 0
+    self.lootWindowId = 1
 end
 
 function addon:OnEnable()
     addon:RegisterEvent("LOOT_OPENED", "OnLootOpened")
+    addon:RegisterEvent("LOOT_CLOSED", "OnLootClosed")
     self:SecureHook("HandleModifiedItemClick", "ModifiedClickHandler")
 --    self:SecureHook("SetItemRef", "SetItemRefHandler")
     ZKLFrameItemScrollFrame:Show()
@@ -31,6 +33,7 @@ end
 function addon:OnDisable()
     --    self:Unhook("SetItemRef")
     self:Unhook("HandleModifiedItemClick")
+    addon:UnregisterEvent("LOOT_CLOSED")
     addon:UnregisterEvent("LOOT_OPENED")
 end
 
@@ -73,17 +76,28 @@ function addon:ItemList_Clear()
 end
 
 function addon:ItemList_Add(itemId)
+    -- Do not allow adding the same item if the loot window ID is different
+    -- This is most likely the same window being opened again
+    if self.itemList[itemId] and
+       self.itemList[itemId].lootWindowId ~= self.lootWindowId
+    then
+        return
+    end
+
     -- Allow adding the same item to the list twice. It may happen.
     local name, link, rarity, _, _, type, subType = GetItemInfo(itemId)
     if name then
         local info = self:GetTable()
         info.link = link
         info.id = itemId
+        info.lootWindowId = self.lootWindowId
 
         -- Ignore the other info for now
         local idx = self.itemList.numItems + 1
         self.itemList[idx] = info
         self.itemList.numItems = idx
+
+        self.itemList[itemId] = info
 
         self:UpdateItemList(ZKLFrameItemScrollFrame)
     end
@@ -179,10 +193,17 @@ function addon:OnLootOpened()
         link = GetLootSlotLink(i)
         if link then
             local itemId = self:GetIdFromLink(link)
-            -- TODO: need fix for when the same window is opened twice
+
+            -- The add function handles the same window being opened twice
             self:ItemList_Add(itemId)
         end
     end
+end
+
+-- Use a counter to assist in maintaining a single list of items
+-- when loot window is re-opened
+function addon:OnLootClosed()
+    self.lootWindowId = self.lootWindowId + 1
 end
 
 --------------------------------------------------------------------------------
@@ -190,33 +211,13 @@ end
 --------------------------------------------------------------------------------
 tableStore = {}
 
+-- TODO: Empty placeholders until I can use something more decent
 function addon:GetTable()
-    local last = #tableStore
-    local tbl
-    if last == 0 then
-        tbl = {}
-    else
-        tbl = tableStore[last]
-        tableStore[last] = nil
-    end
-
-    return tbl
+    return {}
 end
 
 function addon:FreeTable(tbl)
-    for i, v in pairs(tbl) do
-        -- erase first, we don't want to do infinite loops over self referencing
-        -- tables
-        tbl[i] = nil
-        if type(v) == "table" then
-            self:FreeTable(v)
-        end
-    end
-
-    -- TODO: check for already added entries.
-    if #tableStore < 50 then
-        table.insert(tableStore, tbl)
-    end
+    return
 end
 
 --------------------------------------------------------------------------------
