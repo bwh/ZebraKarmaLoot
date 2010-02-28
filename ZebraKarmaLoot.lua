@@ -134,26 +134,10 @@ function addon:AwardLoot(link, player)
     local item = self:ItemList_Find(itemId)
     if not item then return end
 
-    -- If I am the master looter, give it to the winner
-    local method, partyId = GetLootMethod()
-    if method == "master" and partyId == 0 then
-        if self.lootWindowOpen then
-            local playerIdx = -1
-
-            for i=1, 40 do
-                if GetMasterLootCandidate(i) == player then
-                    playerIdx = i
-                    break
-                end
-            end
-
-            if item.lootIndex and playerIdx ~= -1 then
-                GiveMasterLoot(item.lootIndex, playeridx)
-                self:ItemList_Remove(itemId)
-            end
-        else
-            -- TODO: Queue it and automatically award when window opens.
-        end
+    if self:GiveLootToPlayer(item.lootIndex, player) then
+        self:ItemList_Remove(itemId)
+    else
+        -- TODO: Queue it and automatically award when window opens.
     end
 end
 
@@ -264,6 +248,21 @@ function addon:ShowTooltip(frame)
     GameTooltip:Show()
 end
 
+function addon:GetLoot(frame)
+    local itemIdx = frame.itemIdx
+    if not itemIdx then return end
+
+    local item = self:ItemList_Find(itemIdx)
+    if not item then return end
+
+    local playerName = UnitName("player")
+    if self:GiveLootToPlayer(item.lootIndex, playerName) then
+        self:ItemList_Remove(itemId)
+    else
+        -- TODO: Queue it and automatically loot it when window opens.
+    end
+end
+
 function addon:HideTooltip(frame)
     GameTooltip:Hide()
 end
@@ -336,5 +335,26 @@ end
 function addon:ItemList_Broadcast()
     for i = 1, self.itemList.numItems do
         print (addon:GetIdFromLink(self.itemList[i].link))
+    end
+end
+
+function addon:GiveLootToPlayer(lootIndex, playerName)
+    local method, partyId = GetLootMethod()
+    if method == "master" and partyId == 0 then
+        if self.lootWindowOpen then
+            local playerIdx = -1
+
+            for i=1, 40 do
+                if GetMasterLootCandidate(i) == playerName then
+                    playerIdx = i
+                    break
+                end
+            end
+
+            if lootIndex and playerIdx ~= -1 then
+                GiveMasterLoot(lootIndex, playeridx)
+                return true
+            end
+        end
     end
 end

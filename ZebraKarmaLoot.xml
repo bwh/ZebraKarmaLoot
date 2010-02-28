@@ -26,6 +26,12 @@
             <Offset x="2" y="0" />
           </Anchor>
         </Anchors>
+
+        <Scripts>
+          <OnClick>
+            ZebraKarmaLoot:GetLoot(self)
+          </OnClick>
+        </Scripts>
       </Button>
 
       <Button name="$parentRemove" inherits="UIPanelButtonTemplate" text="X">
