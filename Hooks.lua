@@ -8,7 +8,7 @@ end
 
 function addon:RemoveHooks()
     self:Unhook(KarmaRollFrameAwardButton, "OnClick")
-    --    self:Unhook("SetItemRef")
+--        self:Unhook("SetItemRef")
     self:Unhook("HandleModifiedItemClick")
 end
 
@@ -26,7 +26,7 @@ function addon:SetItemRefHandler(link, text, button)
     self:Debug("Modified click:", link, self:GetIdFromLink(link))
     self:ItemList_Add(self:GetIdFromLink(link))
 end
-]]--
+--]]
 
 function addon.NiKarmaAward_OnClick(frame, button, down)
     -- Nasty link from here to Ni_Karma, but it looks like there is no better way
