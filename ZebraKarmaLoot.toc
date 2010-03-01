@@ -11,4 +11,5 @@ embeds.xml
 Locales\Locales.xml
 ZebraKarmaLoot.lua
 Hooks.lua
+Comms.lua
 ZebraKarmaLoot.xml
