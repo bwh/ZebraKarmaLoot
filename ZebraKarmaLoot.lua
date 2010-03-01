@@ -1,6 +1,6 @@
 local NAME="ZebraKarmaLoot"
 
-ZebraKarmaLoot = LibStub("AceAddon-3.0"):NewAddon(NAME, "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0")
+ZebraKarmaLoot = LibStub("AceAddon-3.0"):NewAddon(NAME, "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceComm-3.0")
 local addon = ZebraKarmaLoot
 addon.ADDONNAME = NAME
 addon.VERSION = "0.0.1"
@@ -27,11 +27,13 @@ function addon:OnEnable()
     addon:RegisterEvent("LOOT_OPENED", "OnLootOpened")
     addon:RegisterEvent("LOOT_CLOSED", "OnLootClosed")
     addon:AddHooks()
+    addon:Comms_Start()
 
     ZKLFrameItemScrollFrame:Show()
 end
 
 function addon:OnDisable()
+    addon:Comms_Stop()
     addon:RemoveHooks()
     addon:UnregisterEvent("LOOT_CLOSED")
     addon:UnregisterEvent("LOOT_OPENED")
@@ -266,6 +268,13 @@ end
 function addon:HideTooltip(frame)
     GameTooltip:Hide()
 end
+
+function addon:SendItemList()
+    for i,v in ipairs(addon.itemList) do
+        self:Frames_Broadcast(i, v.id)
+    end
+end
+
 --------------------------------------------------------------------------------
 -- Event handlers
 --------------------------------------------------------------------------------

@@ -135,6 +135,12 @@
             <Offset x="20" y="-5" />
           </Anchor>
         </Anchors>
+
+        <Scripts>
+          <OnClick>
+            ZebraKarmaLoot:SendItemList()
+          </OnClick>
+        </Scripts>
       </Button>
 
       <Button name="$parentClearListButton" inherits="UIPanelButtonTemplate">
