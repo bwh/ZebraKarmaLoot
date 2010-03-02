@@ -341,10 +341,12 @@ function addon:Debug(...)
 	return debugEnabled and self:Print(date(), ": ", ...)
 end
 
-function addon:ItemList_Broadcast()
+function addon:SendItemList()
     for i = 1, self.itemList.numItems do
         print (addon:GetIdFromLink(self.itemList[i].link))
+        addon:SendComm("RAID", nil, "BROADCAST", i, addon:GetIdFromLink(self.itemList[i].link)) 
     end
+
 end
 
 function addon:GiveLootToPlayer(lootIndex, playerName)
