@@ -63,7 +63,7 @@ function addon:ItemList_Clear()
 end
 
 function addon:ItemList_Add(itemId, lootIndex)
-    local existingItem = self:ItemList_Find(itemId)
+    local _, existingItem = self:ItemList_Find(itemId)
 
     -- Do not allow adding the same item if the loot window ID is different
     -- This is most likely the same window being opened again
@@ -88,7 +88,7 @@ function addon:ItemList_Add(itemId, lootIndex)
 
         -- Insert it into table
         table.insert(self.itemList, info)
-        info.itemIdx = #self.itemList
+        info.zkfIndex = #self.itemList
         self.itemList.numItems = #self.itemList
 
         self:UpdateItemList(ZKLFrameItemScrollFrame)
@@ -97,12 +97,12 @@ end
 
 function addon:ItemList_Find(itemIdOrIdx)
     if self.itemList[itemIdOrIdx] then
-        return self.itemList[itemIdOrIdx]
+        return itemIdOrIdx, self.itemList[itemIdOrIdx]
     end
 
     for i, v in ipairs(self.itemList) do
         if v.id == itemIdOrIdx then
-            return v
+            return i, v
         end
     end
 end
@@ -110,8 +110,7 @@ end
 function addon:ItemList_Remove(itemIdOrIdx)
     local itemIdx = itemIdOrIdx
     if not self.itemList[itemIdx] then
-        local item = self:ItemList_Find(itemIdx)
-        itemIdx = item and item.itemIdx or -1
+        local itemIdx, item = self:ItemList_Find(itemIdx)
     end
 
     if itemIdx then
@@ -134,11 +133,11 @@ function addon:DeclareItem(link)
     if not itemId then return end
 
     -- Find the item in the itemList
-    local item = self:ItemList_Find(itemId)
+    local _, item = self:ItemList_Find(itemId)
     if not item then return end
 
     -- Tell the frames that we're waiting for declarations
-    self:Frames_ItemRollStart(item.itemIdx)
+    self:Frames_ItemRollStart(item.zkfIndex)
 end
 
 function addon:AwardLoot(link, player)
@@ -150,11 +149,11 @@ function addon:AwardLoot(link, player)
     if not itemId then return end
 
     -- Find the item in the itemList
-    local item = self:ItemList_Find(itemId)
+    local _, item = self:ItemList_Find(itemId)
     if not item then return end
 
     -- Tell the frames that we're done with the item
-    self:Frames_WinnerAnnounce(item.itemIdx)
+    self:Frames_WinnerAnnounce(item.zkfIndex)
 
     if self:GiveLootToPlayer(item.lootIndex, player) then
         self:ItemList_Remove(itemId)
@@ -210,7 +209,7 @@ function addon:UpdateItemList(frame)
                 return
             end
 
-            local item = self:ItemList_Find(itemIdx)
+            local _, item = self:ItemList_Find(itemIdx)
 
             link:SetText(item.link)
             local SelfLootBtn = getglobal(itemButton:GetName().."SelfLoot")
@@ -262,7 +261,7 @@ function addon:ShowTooltip(frame)
     local itemIdx = frame.itemIdx
     if not itemIdx then return end
 
-    local item = self:ItemList_Find(itemIdx)
+    local _, item = self:ItemList_Find(itemIdx)
     if not item then return end
 
     GameTooltip:SetOwner(frame, "ANCHOR_PRESERVE")
@@ -274,7 +273,7 @@ function addon:GetLoot(frame)
     local itemIdx = frame.itemIdx
     if not itemIdx then return end
 
-    local item = self:ItemList_Find(itemIdx)
+    local _, item = self:ItemList_Find(itemIdx)
     if not item then return end
 
     local playerName = UnitName("player")
