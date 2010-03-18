@@ -110,7 +110,8 @@ end
 function addon:ItemList_Remove(itemIdOrIdx)
     local itemIdx = itemIdOrIdx
     if not self.itemList[itemIdx] then
-        itemIdx = self:ItemList_Find(itemIdx)
+        local item = self:ItemList_Find(itemIdx)
+        itemIdx = item and item.itemIdx or -1
     end
 
     if itemIdx then
