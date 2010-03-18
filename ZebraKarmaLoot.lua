@@ -124,6 +124,22 @@ function addon:ItemList_Remove(itemIdOrIdx)
 
 end
 
+function addon:DeclareItem(link)
+    -- Silly check
+    if not link then return end
+
+    local itemId = self:GetIdFromLink(link)
+
+    if not itemId then return end
+
+    -- Find the item in the itemList
+    local item = self:ItemList_Find(itemId)
+    if not item then return end
+
+    -- Tell the frames that we're waiting for declarations
+    self:Frames_ItemRollStart(item.itemIdx)
+end
+
 function addon:AwardLoot(link, player)
     -- Silly check
     if not link then return end

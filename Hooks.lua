@@ -4,6 +4,7 @@ function addon:AddHooks()
     self:SecureHook("HandleModifiedItemClick", "ModifiedClickHandler")
 --    self:SecureHook("SetItemRef", "SetItemRefHandler")
     self:HookScript(KarmaRollFrameAwardButton, "OnClick", addon.NiKarmaAward_OnClick)
+    self:HookScript(KarmaRollFrameDeclareButton, "OnClick", addon.NiKarmaDeclare_OnClick)
 end
 
 function addon:RemoveHooks()
@@ -35,5 +36,14 @@ function addon.NiKarmaAward_OnClick(frame, button, down)
 
     if link then
         addon:AwardLoot(link, player)
+    end
+end
+
+function addon.NiKarmaDeclare_OnClick(frame, button, down)
+    -- Nasty link from here to Ni_Karma, but it looks like there is no better way
+    local link = KarmaRollFrameItem:GetText()
+
+    if link then
+        addon:DeclareItem(link)
     end
 end
