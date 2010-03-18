@@ -153,6 +153,9 @@ function addon:AwardLoot(link, player)
     local item = self:ItemList_Find(itemId)
     if not item then return end
 
+    -- Tell the frames that we're done with the item
+    self:Frames_WinnerAnnounce(item.itemIdx)
+
     if self:GiveLootToPlayer(item.lootIndex, player) then
         self:ItemList_Remove(itemId)
     else
