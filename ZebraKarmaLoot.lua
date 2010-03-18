@@ -278,7 +278,7 @@ function addon:GetLoot(frame)
 
     local playerName = UnitName("player")
     if self:GiveLootToPlayer(item.lootIndex, playerName) then
-        self:ItemList_Remove(frame.ItemIdx)
+        self:ItemList_Remove(frame.itemIdx)
     else
         -- TODO: Queue it and automatically loot it when window opens.
     end
