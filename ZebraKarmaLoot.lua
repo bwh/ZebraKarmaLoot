@@ -149,14 +149,14 @@ function addon:AwardLoot(link, player)
     if not itemId then return end
 
     -- Find the item in the itemList
-    local _, item = self:ItemList_Find(itemId)
+    local itemIndex, item = self:ItemList_Find(itemId)
     if not item then return end
 
     -- Tell the frames that we're done with the item
     self:Frames_WinnerAnnounce(item.zkfIndex)
 
     if self:GiveLootToPlayer(item.lootIndex, player) then
-        self:ItemList_Remove(itemId)
+        self:ItemList_Remove(itemIndex)
     else
         -- TODO: Queue it and automatically award when window opens.
     end
