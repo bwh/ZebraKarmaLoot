@@ -43,9 +43,9 @@ end
 function addon:OnBTNCLICK(sender, declare)
 	local use_bonus, for_offspec
 
-	if declare == "Bonus" then
+	if declare == "bonus" then
 		use_bonus = true
-	elseif declare == "Offspec" then
+	elseif declare == "offspec" then
 		for_offspec = true
 	end
 
