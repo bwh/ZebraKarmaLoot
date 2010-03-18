@@ -29,7 +29,7 @@
 
         <Scripts>
           <OnClick>
-            ZebraKarmaLoot:GetLoot(self)
+            ZebraKarmaLoot:GetLoot(self:GetParent())
           </OnClick>
         </Scripts>
       </Button>
