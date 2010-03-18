@@ -300,18 +300,28 @@ end
 
 -- Handle auto-populating the loot list when loot frame is opened
 function addon:OnLootOpened()
+    local method, partyId = GetLootMethod()
+
+    -- If not master looter, then no point in adding them to my list.
+    if method ~= "master" then return end
+
     self.isLootWindowOpen = true
 
     local numItems = GetNumLootItems()
     if numItems < 1 then return end
 
-    for i=1,numItems do
-        link = GetLootSlotLink(i)
-        if link then
-            local itemId = self:GetIdFromLink(link)
+    local threshold = GetLootThreshold()
 
-            -- The add function handles the same window being opened twice
-            self:ItemList_Add(itemId, i)
+    for i=1,numItems do
+        local _, _, _, rarity = GetLootSlotInfo(i)
+        if rarity >= threshold then
+            local link = GetLootSlotLink(i)
+            if link then
+                local itemId = self:GetIdFromLink(link)
+
+                -- The add function handles the same window being opened twice
+                self:ItemList_Add(itemId, i)
+            end
         end
     end
 end
