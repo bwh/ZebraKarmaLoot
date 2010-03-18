@@ -364,7 +364,7 @@ end
 function addon:GiveLootToPlayer(lootIndex, playerName)
     local method, partyId = GetLootMethod()
     if method == "master" and partyId == 0 then
-        if self.lootWindowOpen then
+        if self.isLootWindowOpen then
             local playerIdx = -1
 
             for i=1, 40 do
@@ -375,7 +375,7 @@ function addon:GiveLootToPlayer(lootIndex, playerName)
             end
 
             if lootIndex and playerIdx ~= -1 then
-                GiveMasterLoot(lootIndex, playeridx)
+                GiveMasterLoot(lootIndex, playerIdx)
                 return true
             end
         end
