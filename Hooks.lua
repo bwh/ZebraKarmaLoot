@@ -18,8 +18,10 @@ end
 --------------------------------------------------------------------------------
 
 function addon:ModifiedClickHandler(link)
-    self:Debug("Modified click:", link, self:GetIdFromLink(link))
-    self:ItemList_Add(self:GetIdFromLink(link))
+    if link then
+        self:Debug("Modified click:", link, self:GetIdFromLink(link))
+        self:ItemList_Add(self:GetIdFromLink(link))
+    end
 end
 
 --[[ Is this really necessary?
