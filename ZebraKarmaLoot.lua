@@ -157,11 +157,15 @@ function addon:AwardLoot(link, player)
     local itemIndex, item = self:ItemList_Find(itemId)
     if not item then return end
 
+    item.winner = player
+
     if self:GiveLootToPlayer(item.lootIndex, player) then
         self:ItemList_Remove(itemIndex)
     else
         -- TODO: Queue it and automatically award when window opens.
     end
+
+    self:UpdateItemList(ZKLFrameItemScrollFrame)
 end
 
 --------------------------------------------------------------------------------
@@ -213,7 +217,11 @@ function addon:UpdateItemList(frame)
 
             local _, item = self:ItemList_Find(itemIdx)
 
-            link:SetText(item.link)
+            if item.winner then
+                link:SetText(item.link .. " (" .. item.winner .. ")" )
+            else
+                link:SetText(item.link)
+            end
             local SelfLootBtn = getglobal(itemButton:GetName().."SelfLoot")
 
             if item.lootIndex then
@@ -280,11 +288,16 @@ function addon:GetLoot(frame)
         if not item then return end
 
         local playerName = UnitName("player")
+
+        item.winner = playerName
+
         if self:GiveLootToPlayer(item.lootIndex, playerName) then
             self:ItemList_Remove(frame.itemIdx)
         else
             -- TODO: Queue it and automatically loot it when window opens.
         end
+
+        self:UpdateItemList(ZKLFrameItemScrollFrame)
     end
 end
 
