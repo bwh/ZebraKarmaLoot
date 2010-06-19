@@ -113,7 +113,12 @@ function addon:ItemList_Remove(itemIdOrIdx)
     end
 
     if itemIdx then
-        self:FreeTable(self.itemList[itemIdx])
+        local item = self.itemList[itemIdx]
+        if item.zkfIndex then
+            -- Silly name, but closes the ZKF loot window for this item
+            self:Frames_WinnerAnnounce(item.zkfIndex)
+        end
+        self:FreeTable(item)
         table.remove(self.itemList, itemIdx)
 
         self.itemList.numItems = #self.itemList
@@ -152,11 +157,6 @@ function addon:AwardLoot(link, player)
     -- Find the item in the itemList
     local itemIndex, item = self:ItemList_Find(itemId)
     if not item then return end
-
-    -- Tell the frames that we're done with the item
-    if item.zkfIndex then
-        self:Frames_WinnerAnnounce(item.zkfIndex)
-    end
 
     if self:GiveLootToPlayer(item.lootIndex, player) then
         self:ItemList_Remove(itemIndex)
