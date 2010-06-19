@@ -272,17 +272,19 @@ function addon:ShowTooltip(frame)
 end
 
 function addon:GetLoot(frame)
-    local itemIdx = frame.itemIdx
-    if not itemIdx then return end
+    if IsControlKeyDown() then
+        local itemIdx = frame.itemIdx
+        if not itemIdx then return end
 
-    local _, item = self:ItemList_Find(itemIdx)
-    if not item then return end
+        local _, item = self:ItemList_Find(itemIdx)
+        if not item then return end
 
-    local playerName = UnitName("player")
-    if self:GiveLootToPlayer(item.lootIndex, playerName) then
-        self:ItemList_Remove(frame.itemIdx)
-    else
-        -- TODO: Queue it and automatically loot it when window opens.
+        local playerName = UnitName("player")
+        if self:GiveLootToPlayer(item.lootIndex, playerName) then
+            self:ItemList_Remove(frame.itemIdx)
+        else
+            -- TODO: Queue it and automatically loot it when window opens.
+        end
     end
 end
 
