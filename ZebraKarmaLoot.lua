@@ -51,10 +51,9 @@ end
 -- Item list handling
 --------------------------------------------------------------------------------
 function addon:ItemList_Clear()
-    self:FreeTable(self.itemList)
-    self.itemList = self:GetTable()
-    self.itemList.numItems = 0
-    self:UpdateItemList(ZKLFrameItemScrollFrame)
+    while #self.itemList > 0 do
+        self:ItemList_Remove(1)
+    end
 
     -- Stupid check. If Ni_Karma is not there what are we doing running?
     if KarmaRollFrameClearButton then
