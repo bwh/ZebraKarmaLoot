@@ -88,7 +88,6 @@ function addon:ItemList_Add(itemId, lootIndex)
 
         -- Insert it into table
         table.insert(self.itemList, info)
-        info.zkfIndex = #self.itemList
         self.itemList.numItems = #self.itemList
 
         self:UpdateItemList(ZKLFrameItemScrollFrame)
@@ -137,7 +136,9 @@ function addon:DeclareItem(link)
     if not item then return end
 
     -- Tell the frames that we're waiting for declarations
-    self:Frames_ItemRollStart(item.zkfIndex)
+    if item.zkfIndex then
+        self:Frames_ItemRollStart(item.zkfIndex)
+    end
 end
 
 function addon:AwardLoot(link, player)
@@ -153,7 +154,9 @@ function addon:AwardLoot(link, player)
     if not item then return end
 
     -- Tell the frames that we're done with the item
-    self:Frames_WinnerAnnounce(item.zkfIndex)
+    if item.zkfIndex then
+        self:Frames_WinnerAnnounce(item.zkfIndex)
+    end
 
     if self:GiveLootToPlayer(item.lootIndex, player) then
         self:ItemList_Remove(itemIndex)
@@ -290,7 +293,8 @@ end
 
 function addon:SendItemList()
     for i,v in ipairs(addon.itemList) do
-        self:Frames_Broadcast(i, v.id)
+        v.zkfIndex = i
+        self:Frames_Broadcast(v.zkfIndex, v.id)
     end
 end
 
