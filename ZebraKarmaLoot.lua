@@ -172,6 +172,11 @@ function addon:AwardLoot(link, player)
         -- TODO: Queue it and automatically award when window opens.
     end
 
+    if item.zkfIndex then
+        -- Silly name, but closes the ZKF loot window for this item
+        self:Frames_WinnerAnnounce(item.zkfIndex)
+    end
+
     self:UpdateItemList(ZKLFrameItemScrollFrame)
 end
 
@@ -300,6 +305,11 @@ function addon:GetLoot(frame)
 
         if not self:GiveLootToPlayer(item.lootIndex, playerName) then
             -- TODO: Queue it and automatically loot it when window opens.
+        end
+
+        if item.zkfIndex then
+            -- Silly name, but closes the ZKF loot window for this item
+            self:Frames_WinnerAnnounce(item.zkfIndex)
         end
 
         self:UpdateItemList(ZKLFrameItemScrollFrame)
