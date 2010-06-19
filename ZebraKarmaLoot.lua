@@ -26,6 +26,7 @@ end
 function addon:OnEnable()
     addon:RegisterEvent("LOOT_OPENED", "OnLootOpened")
     addon:RegisterEvent("LOOT_CLOSED", "OnLootClosed")
+    addon:RegisterEvent("LOOT_SLOT_CLEARED", "OnLootSlotCleared")
     addon:AddHooks()
     addon:Comms_Start()
 
@@ -105,6 +106,14 @@ function addon:ItemList_Find(itemIdOrIdx)
     end
 end
 
+function addon:ItemList_FindByLootIndex(lootIndex)
+    for i, v in ipairs(self.itemList) do
+        if v.lootIndex == lootIndex then
+            return i, v
+        end
+    end
+end
+
 function addon:ItemList_Remove(itemIdOrIdx)
     local itemIdx = itemIdOrIdx
     if not self.itemList[itemIdx] then
@@ -159,9 +168,7 @@ function addon:AwardLoot(link, player)
 
     item.winner = player
 
-    if self:GiveLootToPlayer(item.lootIndex, player) then
-        self:ItemList_Remove(itemIndex)
-    else
+    if not self:GiveLootToPlayer(item.lootIndex, player) then
         -- TODO: Queue it and automatically award when window opens.
     end
 
@@ -291,9 +298,7 @@ function addon:GetLoot(frame)
 
         item.winner = playerName
 
-        if self:GiveLootToPlayer(item.lootIndex, playerName) then
-            self:ItemList_Remove(frame.itemIdx)
-        else
+        if not self:GiveLootToPlayer(item.lootIndex, playerName) then
             -- TODO: Queue it and automatically loot it when window opens.
         end
 
@@ -349,6 +354,14 @@ end
 function addon:OnLootClosed()
     self.isLootWindowOpen = false
     self.lootWindowId = self.lootWindowId + 1
+end
+
+-- Remove an item from list when a loot is removed from the loot window
+function addon:OnLootSlotCleared(event, lootIndex)
+    local idx = self:ItemList_FindByLootIndex(lootIndex)
+    if idx then
+        self:ItemList_Remove(idx)
+    end
 end
 
 --------------------------------------------------------------------------------
